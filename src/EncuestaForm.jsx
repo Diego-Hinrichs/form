@@ -58,8 +58,9 @@ const EncuestaForm = () => {
       const wb = XLSX.utils.book_new();
       const ws = XLSX.utils.json_to_sheet(encuestaData);
       XLSX.utils.book_append_sheet(wb, ws, 'Encuesta');
-      XLSX.writeFile(wb, 'encuesta_results.xlsx');
+      XLSX.writeFile(wb, 'encuesta_bierfest_2024.xlsx');
     };
+
     return (
       <div className='container'>
         <form className='form' onSubmit={handleSubmit(onSubmit)}>      
@@ -329,7 +330,7 @@ const EncuestaForm = () => {
             />
             {watch('medio_informacion') === 'otro' && (
               <div className='anotherOption'>
-                <label>Medio información:</label>
+                <label>Medio de información:</label>
                 <input type="text" {...register('nuevo_medio_informacion', { required: true })} />
               </div>
               )}
@@ -352,7 +353,7 @@ const EncuestaForm = () => {
           </div>
 
           <div>
-            <label>14. ¿Cómo calificaría los siguientes aspectos relacionados a la organización del evento?</label>
+            <label>14.a ¿Cómo calificaría los siguientes aspectos relacionados a la organización del evento?</label>
             <table>
               <tbody>
                 <tr className='tableHeader'>
@@ -401,7 +402,7 @@ const EncuestaForm = () => {
           </div>
 
           <div>
-            <label>15. ¿Cómo calificaría los siguientes aspectos relacionados con el recinto SAVAL? </label>
+            <label>14.b ¿Cómo calificaría los siguientes aspectos relacionados con el recinto SAVAL?</label>
             <table>
               <tbody>
                 <tr className='tableHeader'>
@@ -416,7 +417,7 @@ const EncuestaForm = () => {
                 <TableRow 
                   topic='Acceso al recinto (Rapidez y amabilidad)'
                   register={register}
-                  registerField='AccesoRecinto'
+                  registerField='acceso_recinto'
                   />
                 
                 <TableRow 
@@ -446,15 +447,166 @@ const EncuestaForm = () => {
               </tbody>
             </table>
           </div>
-         
 
+          <div>
+            <label>15. Asistió o tiene intención de participar / observar en alguna de estas actividades:</label>
+            <table>
+              <tbody>
+                <tr className='tableHeader'>
+                  <th></th>
+                  <th>Aún no participa</th>
+                  <th>Insatisfecho</th>
+                  <th>Poco satisfecho</th>
+                  <th>Ni insatisfecho ni satisfecho</th>
+                  <th>Muy satisfecho</th>
+                  <th>Totalmente satisfecho</th>
+                </tr>
+                <TableRow 
+                  topic='Espectáculo (desfile y música)'
+                  register={register}
+                  registerField='espectaculo'
+                  />
+                <TableRow 
+                  topic='Exhibiciones (autos antiguos)'
+                  register={register}
+                  registerField='exhibiciones'/>
+                <TableRow 
+                  topic='Concurso mejor tomador de cerveza'
+                  register={register}
+                  registerField='mejor_tomador_cerveza'/>
+                <TableRow 
+                  topic='Concurso mejor clavador de clavos'
+                  register={register}
+                  registerField='mejor_clavador'/>
+                <TableRow 
+                  topic='Concurso martillo de fuerza'
+                  register={register}
+                  registerField='martillo_fuerza'/>
+              </tbody>
+            </table>
+          </div>
+          <div>
+            <label>
+              16. ¿Participó o participará de alguna actividad complementaria a este evento que se realiza fuera del recinto? (Tarjetas: Regata de velas – Gymkana de autos antiguos – Concurso ecuestre – Regata de remos) (MISMO QUE PREGUNTA 15 Y MODIFICAR SEGÚN PROGRAMA)
+            </label>
+            <RadioButton
+              label='Si'
+              register={register}
+              registerField='actividad_complementaria'
+              value='si'
+            />
+            <RadioButton
+              label='No'
+              register={register}
+              registerField='actividad_complementaria'
+              value='no'
+            />
+            <label>¿En cuál participó/participará?</label>
+            <input type="text" {...register('cual_actividad_complementaria', { required: true })}/>
+          </div>
+          <div>
+            <label>17. ¿El evento cumplió sus expectativas?</label>
+            <RadioButton
+              label='Si'
+              register={register}
+              registerField='cumplio_expectativas'
+              value='si'
+            />
+            <RadioButton
+              label='No'
+              register={register}
+              registerField='cumplio_expectativas'
+              value='no'
+            />
+            <label>¿Por qué? ¿Qué fue lo que más / menos le gustó?</label>
+            <input type="text" {...register('expectativas', { required: true })}/>
+          </div>
+          <div>
+            <label>18. ¿Sabía usted que esta fiesta Bierfest es un evento a beneficio del cuerpo de Bomberos de Valdivia?</label>
+            <RadioButton 
+              label='Si'
+              register={register}
+              registerField='sabias_beneficio_bomberos'
+              value='si'
+            />
+            <RadioButton
+              label='No'
+              register={register}
+              registerField='sabias_beneficio_bomberos'
+              value='no'
+            />
+          </div>
+          <div>
+            <label>19. ¿Sabía usted que todos los participantes que están en la organización de la fiesta Bierfest son instituciones sin fines de lucro que trabajan para reunir fondos? </label>
+            <RadioButton 
+              label='Si'
+              register={register}
+              registerField='sabias_sin_fines_lucro'
+              value='si'
+            />
+            <RadioButton
+              label='No'
+              register={register}
+              registerField='sabias_sin_fines_lucro'
+              value='no'
+            />
+          </div>
+          <div>
+            <label>20. ¿Del 1 al 5, cuál es su evaluación general para este evento?</label>
+            <div>
+              <input type="radio" {...register('evaluacion_evento', { required: true })} value='1'/>
+              <label>1</label>
+            </div>
+            <div>
+              <input type="radio" {...register('evaluacion_evento', { required: true })} value='2'/>
+              <label>2</label>
+            </div>
+            <div>
+              <input type="radio" {...register('evaluacion_evento', { required: true })} value='3'/>
+              <label>3</label>
+            </div>
+            <div>
+              <input type="radio" {...register('evaluacion_evento', { required: true })} value='4'/>
+              <label>4</label>
+            </div>
+            <div>
+              <input type="radio" {...register('evaluacion_evento', { required: true })} value='5' />
+              <label>5</label>
+            </div>
+          </div>
+          <div>
+            <label>21. ¿Del 1 al 5, cuánto recomendaría este evento a un amigo? </label>
+            <div>
+              <input type="radio" {...register('recomendacion_evento', { required: true })} value='1'/>
+              <label>1</label>
+            </div>
+            <div>
+              <input type="radio" {...register('recomendacion_evento', { required: true })} value='2'/>
+              <label>2</label>
+            </div>
+            <div>
+              <input type="radio" {...register('recomendacion_evento', { required: true })} value='3'/>
+              <label>3</label>
+            </div>
+            <div>
+              <input type="radio" {...register('recomendacion_evento', { required: true })} value='4'/>
+              <label>4</label>
+            </div>
+            <div>
+              <input type="radio" {...register('recomendacion_evento', { required: true })} value='5' />
+              <label>5</label>
+            </div>
+          </div>
+          <div>
+            <label>22. Para finalizar y considerando su experiencia, ¿tiene algún comentario o sugerencia en general? </label>
+            <input type="text" {...register('comentario')}/>
+          </div>
           {/* Comprobar salida */}
 
           <div className='submitButtons'>
-            <button type="submit">Enviar</button>
-            <button onClick={guardarRespuestas}>Descargar</button>
+            <button type="submit">Guardar Respuesta</button>
+            <button onClick={guardarRespuestas}>Descargar Excel</button>
           </div>
-          <Link className='navbuttonform' to={'/respuestas'}>Ver Respuestas</Link>
         </form>
       </div>
     );

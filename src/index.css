@@ -1,16 +1,10 @@
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
-  font-weight: 400;
-
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
-
-  font-synthesis: none;
   text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 #root {
@@ -54,13 +48,6 @@ h1 {
   gap: 0.5rem;
   display: flex;
   flex-direction: column;
-}
-
-.form>.submitButtons{
-  border: none;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-evenly;
 }
 
 nav>ul{
@@ -127,6 +114,28 @@ tr {
   text-align: center;
 }
 
+div .submitButtons {
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  justify-content: space-evenly;
+}
+
+.submitButtons button:first-child {
+  width: 98%;
+  height: 3rem;
+  color: #1a1a1a;
+  background: rgb(81, 255, 81);
+}
+
+.submitButtons button:nth-child(2) {
+  width: 98%;
+  color: #323232;
+  background: rgb(192, 180, 114);
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
@@ -137,5 +146,25 @@ tr {
   }
   button {
     background-color: #f9f9f9;
+  }
+}
+
+/* Media query para tablets */
+@media screen and (max-width: 599px) {
+  #root {
+    margin: 0;
+    max-width: 599px;
+    padding: 1rem;
+  }
+  h1 {
+    font-size: 2.5em;
+  }
+  .container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .form {
+    max-width: 350px;
   }
 }
