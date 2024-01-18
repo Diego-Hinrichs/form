@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  encuesta-service:
+    container_name: encuesta-container
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "4173:4173"
