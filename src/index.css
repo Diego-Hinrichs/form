@@ -167,4 +167,7 @@ div .submitButtons {
   .form {
     max-width: 350px;
   }
+  .likert{
+    overflow-x:scroll;
+  }
 }

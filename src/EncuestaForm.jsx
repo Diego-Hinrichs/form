@@ -1,6 +1,5 @@
 import { useForm  } from 'react-hook-form';
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import useAppContext from './AppContext';
 import * as XLSX from 'xlsx';
 
@@ -18,11 +17,11 @@ const TableRow = ({ topic, register, registerField}) => {
   )
 };
 
-const RadioButton = ({register, label, registerField, value}) => {
+const RadioButton = ({register, label, pregunta, registerField, value}) => {
   return(
     <div>
-      <input {...register(`${registerField}`, { required: true })} value={value} type="radio"/>
-      <label>{label}</label>
+      <input id={`${label}-${pregunta}`} {...register(`${registerField}`, { required: true })} value={value} type="radio"/>
+      <label htmlFor={`${label}-${pregunta}`}>{label}</label>
     </div>
   )
 }
@@ -40,15 +39,16 @@ const ExtractTrueValues = ( data ) => {
 const EncuestaForm = () => {
     const { handleSubmit, register, setValue, watch, control, reset } = useForm();
     const [encuestaData, setEncuestaData] = useState([]);
-    const { addRespuesta } = useAppContext();
+    const { addAnswer, cleanStorage } = useAppContext();
+    useEffect(()=> {
+    },[encuestaData])
 
     const onSubmit = (data) => {
       // Procesar data.informacion
       // data = ExtractTrueValues(data)
       // console.log(data)
-      console.log(data)
       setEncuestaData((prevData) => [...prevData, data]);
-      addRespuesta(data)
+      addAnswer(data)
       reset()
       // Limpia el formulario después de enviar
       // Limpia más campos según sea necesario
@@ -59,19 +59,20 @@ const EncuestaForm = () => {
       const ws = XLSX.utils.json_to_sheet(encuestaData);
       XLSX.utils.book_append_sheet(wb, ws, 'Encuesta');
       XLSX.writeFile(wb, 'encuesta_bierfest_2024.xlsx');
+      cleanStorage();
     };
 
     return (
       <div className='container'>
         <form className='form' onSubmit={handleSubmit(onSubmit)}>      
           <div>
-            <label>2. ¿Cuántos años tiene? </label>
-            <input type="number" {...register('edad', { required: true })} />
+            <label htmlFor='age'>2. ¿Cuántos años tiene? </label>
+            <input id='age' type="number" {...register('edad', { required: true })} />
           </div>
 
           <div>
-            <label>3. ¿Con qué género se identifica?</label>
-              <select {...register('genero', { required: true })}>
+            <label htmlFor='gender'>3. ¿Con qué género se identifica?</label>
+              <select id='gender' {...register('genero', { required: true })}>
                 <option value="femenino">Femenino</option>
                 <option value="masculino">Masculino</option>
                 <option value="otro">Otro</option>
@@ -79,15 +80,15 @@ const EncuestaForm = () => {
               </select>
               {watch('genero') === 'otro' && (
               <div className='anotherOption'>
-                <label>Género:</label>
-                <input type="text" {...register('nuevo_genero', { required: true })} />
+                <label htmlFor='anotherGender'>Género:</label>
+                <input id='anotherGender' type="text" {...register('nuevo_genero', { required: true })} />
               </div>
               )}
           </div>
 
           <div>
-            <label>4. ¿Cuál es su ocupación actual?</label>
-            <select {...register('ocupacion', { required: true })}>
+            <label htmlFor='ocupation'>4. ¿Cuál es su ocupación actual?</label>
+            <select id='ocupation' {...register('ocupacion', { required: true })}>
               <option value="estudiante">Estudiante</option>
               <option value="independiente">Trabajador independiente</option>
               <option value="dependiente">Trabajador dependiente</option>
@@ -96,20 +97,20 @@ const EncuestaForm = () => {
             </select>
             {watch('ocupacion') === 'otra' && (
               <div className='anotherOption'>
-                <label>Ocupación:</label>
-                <input type="text" {...register('nueva_ocupacion', { required: true })} />
+                <label htmlFor='anotherOcupation'>Ocupación:</label>
+                <input id='anotherOcupation' type="text" {...register('nueva_ocupacion', { required: true })} />
               </div>
             )}
           </div>
 
           <div>
-            <label>5. ¿Cuál es su ciudad de residencia?</label>
-            <input type="text" {...register('ciudad_residencia', { required: true })} />
+            <label htmlFor='home' >5. ¿Cuál es su ciudad de residencia?</label>
+            <input id='home' type="text" {...register('ciudad_residencia', { required: true })} />
           </div>
 
           <div>
-            <label>6. ¿Cuál es su motivación al visitar este evento?</label>
-            <select {...register('motivacion', { required: true })}>
+            <label htmlFor='motivation'>6. ¿Cuál es su motivación al visitar este evento?</label>
+            <select id='motivation' {...register('motivacion', { required: true })}>
               <option value="turismo_recreacion">Realizar actividades turísticas o recreativas</option>
               <option value="aprovechar_estadia">Aprovechar mi estadía en la ciudad</option>
               <option value="participacion_de_casualidad">Participé por casualidad al venir al parque SAVAL</option>
@@ -118,14 +119,14 @@ const EncuestaForm = () => {
             </select>
             {watch('motivacion') === 'otro' && (
               <div className='anotherOption'>
-                <label>Motivación:</label>
-                <input type="text" {...register('nuevo_motivo', { required: true })} />
+                <label htmlFor='anotherMotivation'>Motivación:</label>
+                <input id='anotherMotivation' type="text" {...register('nuevo_motivo', { required: true })} />
               </div>
             )}
           </div>
 
           <div>
-            <label>7. Cuando planificó este viaje ¿Consideró visitar la Bierfest?</label>
+            <span>7. Cuando planificó este viaje ¿Consideró visitar la Bierfest?</span>
             <div className='radios'>
               <div>
                 <input {...register('planificar', { required: true })} value='si' type="radio" id="si" />
@@ -138,8 +139,8 @@ const EncuestaForm = () => {
             </div>
             {watch('planificar') === 'si' && (
               <div className='anotherOption'>
-                <label>¿Como la bierfest influenció su planificación?</label>
-                <select {...register('influencia_en_planificacion', { required: true })}>
+                <label htmlFor='anotherPlan'>¿Como la bierfest influenció su planificación?</label>
+                <select id='anotherPlan' {...register('influencia_en_planificacion', { required: true })}>
                   <option value="defini_fecha_viaje">Definí la fecha de mi viaje para asistir a este evento</option>
                   <option value="modifique_fecha_viaje">Modifiqué la fecha de mi viaje para asistir a este evento</option>
                   <option value="no_influyo">No influyó en la planificación de mi viaje</option>
@@ -149,13 +150,13 @@ const EncuestaForm = () => {
           </div>
           
           <div>
-            <label>8. ¿Cuántos días considera su estadía en la ciudad? </label>
-            <input type="number" {...register('estadia', { required: true })} />
+            <label htmlFor='days'>8. ¿Cuántos días considera su estadía en la ciudad? </label>
+            <input id='days' type="number" {...register('estadia', { required: true })} />
           </div>
           
           <div>
-            <label>9. ¿Dónde se hospeda actualmente?</label>
-            <select {...register('hospedaje', { required: true })}>
+            <label htmlFor='lodging'>9. ¿Dónde se hospeda actualmente?</label>
+            <select id='lodging' {...register('hospedaje', { required: true })}>
               <option value="familiares_amigos">Casa de familiares/amigos</option>
               <option value="residencial">Residencial</option>
               <option value="hostal">Hostal</option>
@@ -168,68 +169,68 @@ const EncuestaForm = () => {
             </select>
             {watch('hospedaje') === 'otroHospedaje' && (
               <div className='anotherOption'>
-                <label>Hospedaje:</label>
-                <input type="text" {...register('nuevoHospedaje', { required: true })} />
+                <label htmlFor='anotherLodging'>Hospedaje:</label>
+                <input id='anotherLodging' type="text" {...register('nuevoHospedaje', { required: true })} />
               </div>
             )}
           </div>
           
           <div>
-            <label>10. En su estadía en la ciudad:<br/>¿Visito algún atractivo/lugar de la ciudad? ¿Cuál?</label>
-            <hr style={{margin:'0rem 0rem 0.5rem 0rem'}}></hr>
-            <label>Atractivos del tipo Naturaleza:</label>
-            <label>
-              <input type="checkbox" {...register('visita_humedales')} />
+            <span>10. En su estadía en la ciudad: ¿Visito algún atractivo/lugar de la ciudad? ¿Cuál?</span>
+            <hr style={{margin:'0.5rem 0rem 0.5rem 0rem'}}></hr>
+            <span style={{margin:'0rem 0rem 0.5rem 0rem'}}>Atractivos del tipo Naturaleza:</span>
+            <label htmlFor='visita_humedales'>
+              <input id='visita_humedales' type="checkbox" {...register('visita_humedales')} />
               Visita/paseo a humedales
             </label>
-            <label>
-              <input type="checkbox" {...register('reservas_naturales')} />
+            <label htmlFor='reservas_naturales'>
+              <input id='reservas_naturales' type="checkbox" {...register('reservas_naturales')} />
               Reservas Naturales
             </label>
-            <label>
-              <input type="checkbox" {...register('santuarios_naturaleza')} />
+            <label htmlFor='santuarios_naturaleza'>
+              <input id='santuarios_naturaleza' type="checkbox" {...register('santuarios_naturaleza')} />
               Santuarios de la naturaleza
             </label>
-            <label>
-              <input type="checkbox" {...register('navegacion_rios')} />
+            <label htmlFor='navegacion_rios'>
+              <input id='navegacion_rios' type="checkbox" {...register('navegacion_rios')} />
               Navegación por los ríos
             </label>
-            <label>
-              <input type="checkbox" {...register('visita_playas')} />
+            <label htmlFor='visita_playas'>
+              <input id='visita_playas' type="checkbox" {...register('visita_playas')} />
               Visita a playas y sector costero
             </label>
-            <label>
-              <input type="checkbox" {...register('parques_urbanos')} />
+            <label htmlFor='parques_urbanos'>
+              <input id='parques_urbanos' type="checkbox" {...register('parques_urbanos')} />
               Parques urbanos y miradores
             </label>
-            <hr style={{margin:'0rem 0rem 0.5rem 0rem'}}></hr>
-            <label>Atractivos del tipo Culturales:</label>
-            <label>
-              <input type="checkbox" {...register('museos_casas_patrimoniales')} />
+            <hr style={{margin:'0.5rem 0rem 0.5rem 0rem'}}></hr>
+            <span style={{margin:'0rem 0rem 0.5rem 0rem'}}>Atractivos del tipo Culturales:</span>
+            <label htmlFor='museos_casas_patrimoniales'>
+              <input id='museos_casas_patrimoniales' type="checkbox" {...register('museos_casas_patrimoniales')} />
               Museos y casas patrimoniales
             </label>
-            <label>
-              <input type="checkbox" {...register('teatro')} />
+            <label htmlFor='teatro'>
+              <input id='teatro' type="checkbox" {...register('teatro')} />
               Teatro (Cervantes, Lord Cochrane)
             </label>
-            <label>
-              <input type="checkbox" {...register('centros_culturales')} />
+            <label htmlFor='centros_culturales'>
+              <input id='centros_culturales' type="checkbox" {...register('centros_culturales')} />
               Centros culturales
             </label>
-            <label>
-              <input type="checkbox" {...register('castillo_valdivia')} />
+            <label htmlFor='castillo_valdivia'>
+              <input id='castillo_valdivia' type="checkbox" {...register('castillo_valdivia')} />
               Castillo de Valdivia (Corral)
             </label>
-            <label>
-              <input type="checkbox" {...register('torreones')} />
+            <label htmlFor='torreones'>
+              <input id='torreones' type="checkbox" {...register('torreones')} />
               Torreones (Barro, Los Canelos)
             </label>
-            <label>
-              <input type="checkbox" {...register('ferias_costumbristas')} />
+            <label htmlFor='ferias_costumbristas'>
+              <input id='ferias_costumbristas' type="checkbox" {...register('ferias_costumbristas')} />
               Ferias costumbristas 
             </label>
             <hr style={{margin:'0rem 0rem 0.5rem 0rem'}}></hr>
-            <label>Atractivos del tipo Entretención:</label>
+            <span style={{margin:'0rem 0rem 0.5rem 0rem'}}>Atractivos del tipo Entretención:</span>
             <label>
               <input type="checkbox" {...register('tours')} />
               Tour´s (localidades cercanas)
@@ -254,7 +255,7 @@ const EncuestaForm = () => {
           </div>
 
           <div>
-            <label>11. ¿Cuál es aproximadamente su presupuesto destinado para este viaje? </label>
+            <span>11. ¿Cuál es aproximadamente su presupuesto destinado para este viaje? </span>
             <label>
             Monto: $
             <input type="text" {...register('presupuesto')} />
@@ -266,79 +267,89 @@ const EncuestaForm = () => {
           </div>
 
           <div>
-            <label>12. ¿Cómo se informó de este evento?</label>
+            <span style={{margin:'0rem 0rem 0.5rem 0rem'}}>12. ¿Cómo se informó de este evento?</span>
             <RadioButton
               register={register}
               registerField='medio_informacion'
+              pregunta='11'
               label='Radio'
               value='radio'
             />
             <RadioButton
               register={register}
               registerField='medio_informacion'
+              pregunta='11'
               label='Afiches'
               value='afiches'
             />
             <RadioButton
               register={register}
               registerField='medio_informacion'
+              pregunta='11'
               label='Prensa escrita'
               value='prensa_escrita'
             />
             <RadioButton
               register={register}
               registerField='medio_informacion'
+              pregunta='11'
               label='Página web'
               value='pagina_web'
             />
             <RadioButton
               register={register}
               registerField='medio_informacion'
+              pregunta='11'
               label='Por un conocido/amigo'
               value='conocido_amigo'
             />
-            <label>Redes sociales ¿Cuál?</label>
+            <span style={{margin:'0.5rem 0rem 0.5rem 0rem'}}>Redes sociales ¿Cuál?</span>
             <RadioButton
               register={register}
               registerField='medio_informacion'
+              pregunta='11'
               label='Facebook'
               value='facebook'
             />
             <RadioButton
               register={register}
               registerField='medio_informacion'
+              pregunta='11'
               label='Instagram'
               value='instagram'
             />
             <RadioButton
               register={register}
               registerField='medio_informacion'
+              pregunta='11'
               label='Tik tok'
               value='tik_tok'
             />
             <RadioButton
               register={register}
               registerField='medio_informacion'
+              pregunta='11'
               label='Twitter'
               value='twitter'
             />
             <RadioButton
               register={register}
               registerField='medio_informacion'
+              pregunta='11'
               label='Otro'
               value='otro'
             />
             {watch('medio_informacion') === 'otro' && (
               <div className='anotherOption'>
-                <label>Medio de información:</label>
-                <input type="text" {...register('nuevo_medio_informacion', { required: true })} />
+                <label htmlFor='anotherMedio'>Medio de información:</label>
+                <input id='anotherMedio' type="text" {...register('nuevo_medio_informacion', { required: true })} />
               </div>
               )}
           </div>
 
           <div>
-            <label>13. A través de qué canal compró sus entradas?</label>
-              <select {...register('compraEntradas', { required: true })}>
+            <label htmlFor='channel'>13. A través de qué canal compró sus entradas?</label>
+              <select id='channel' {...register('compraEntradas', { required: true })}>
                 <option value="boleterias">Boleterías del recinto</option>
                 <option value="sitioWeb">A través del sitio web (passline.com)</option>
                 <option value="invitacion">Me invitaron con entrada pagada</option>
@@ -346,262 +357,276 @@ const EncuestaForm = () => {
               </select>
               {watch('compraEntradas') === 'otro' && (
               <div className='anotherOption'>
-                <label>Canal:</label>
-                <input type="text" {...register('nuevo_canal', { required: true })} />
+                <label htmlFor='anotherChannel'>Canal:</label>
+                <input id='anotherChannel' type="text" {...register('nuevo_canal', { required: true })} />
               </div>
               )}
           </div>
 
           <div>
-            <label>14.a ¿Cómo calificaría los siguientes aspectos relacionados a la organización del evento?</label>
-            <table>
-              <tbody>
-                <tr className='tableHeader'>
-                  <th></th>
-                  <th>No usé o no participé</th>
-                  <th>Insatisfecho</th>
-                  <th>Poco satisfecho</th>
-                  <th>Ni insatisfecho ni satisfecho</th>
-                  <th>Muy satisfecho</th>
-                  <th>Totalmente satisfecho</th>
-                </tr>
-                <TableRow 
-                  topic='Señalética e información disponible'
-                  register={register}
-                  registerField='senalizacion_informacion'/>
-                <TableRow 
-                  topic='Atención de los stand al interior del recinto'
-                  register={register}
-                  registerField='atencion_de_stands'/>
-                <TableRow 
-                  topic='Variedad de cervezas'
-                  register={register}
-                  registerField='variedad_cerveza'/>
-                <TableRow 
-                  topic='Atractivo y variedad de productos a la venta (kits cerveceros y souvenir)'
-                  register={register}
-                  registerField='atractivos_productos'/>
-                <TableRow 
-                  topic='Zona de Foodtruck bierfest'
-                  register={register}
-                  registerField='foodtruck'/>
-                <TableRow 
-                  topic='Ambientación y música de animación'
-                  register={register}
-                  registerField='ambientacion'/>
-                <TableRow 
-                  topic='Costo de entradas'
-                  register={register}
-                  registerField='costo_entradas'/>
-                <TableRow 
-                  topic='Disponibilidad de mesas'
-                  register={register}
-                  registerField='disponibilidad_mesas'/>
-              </tbody>
-            </table>
+            <span style={{margin:'0rem 0rem 0.5rem 0rem'}}>14.a ¿Cómo calificaría los siguientes aspectos relacionados a la organización del evento?</span>
+            <div className='likert'>
+              <table>
+                <tbody>
+                  <tr className='tableHeader'>
+                    <th></th>
+                    <th>No usé o no participé</th>
+                    <th>Insatisfecho</th>
+                    <th>Poco satisfecho</th>
+                    <th>Ni insatisfecho ni satisfecho</th>
+                    <th>Muy satisfecho</th>
+                    <th>Totalmente satisfecho</th>
+                  </tr>
+                  <TableRow 
+                    topic='Señalética e información disponible'
+                    register={register}
+                    registerField='senalizacion_informacion'/>
+                  <TableRow 
+                    topic='Atención de los stand al interior del recinto'
+                    register={register}
+                    registerField='atencion_de_stands'/>
+                  <TableRow 
+                    topic='Variedad de cervezas'
+                    register={register}
+                    registerField='variedad_cerveza'/>
+                  <TableRow 
+                    topic='Atractivo y variedad de productos a la venta (kits cerveceros y souvenir)'
+                    register={register}
+                    registerField='atractivos_productos'/>
+                  <TableRow 
+                    topic='Zona de Foodtruck bierfest'
+                    register={register}
+                    registerField='foodtruck'/>
+                  <TableRow 
+                    topic='Ambientación y música de animación'
+                    register={register}
+                    registerField='ambientacion'/>
+                  <TableRow 
+                    topic='Costo de entradas'
+                    register={register}
+                    registerField='costo_entradas'/>
+                  <TableRow 
+                    topic='Disponibilidad de mesas'
+                    register={register}
+                    registerField='disponibilidad_mesas'/>
+                </tbody>
+              </table>
+            </div>
           </div>
 
           <div>
-            <label>14.b ¿Cómo calificaría los siguientes aspectos relacionados con el recinto SAVAL?</label>
-            <table>
-              <tbody>
-                <tr className='tableHeader'>
-                  <th></th>
-                  <th>No usé o no participé</th>
-                  <th>Insatisfecho</th>
-                  <th>Poco satisfecho</th>
-                  <th>Ni insatisfecho ni satisfecho</th>
-                  <th>Muy satisfecho</th>
-                  <th>Totalmente satisfecho</th>
-                </tr>
-                <TableRow 
-                  topic='Acceso al recinto (Rapidez y amabilidad)'
-                  register={register}
-                  registerField='acceso_recinto'
-                  />
-                
-                <TableRow 
-                  topic='Disponibilidad de estacionamientos'
-                  register={register}
-                  registerField='disponibilidad_estacionamientos'/>
-                <TableRow 
-                  topic='Seguridad del recinto'
-                  register={register}
-                  registerField='seguridad_recinto'/>
-                <TableRow 
-                  topic='Iluminación del recinto'
-                  register={register}
-                  registerField='iluminacion_recinto'/>
-                <TableRow 
-                  topic='Accesos inclusivos'
-                  register={register}
-                  registerField='accesos_inlusivos'/>
-                <TableRow 
-                  topic='Servicios higiénicos'
-                  register={register}
-                  registerField='servicios_higienicos'/>
-                <TableRow 
-                  topic='Temperatura al interior del recinto'
-                  register={register}
-                  registerField='temperatura_recinto'/>
-              </tbody>
-            </table>
+            <span style={{margin:'0rem 0rem 0.5rem 0rem'}}>
+              14.b ¿Cómo calificaría los siguientes aspectos relacionados con el recinto SAVAL?
+            </span>
+            <div className='likert'>
+              <table>
+                <tbody>
+                  <tr className='tableHeader'>
+                    <th></th>
+                    <th>No usé o no participé</th>
+                    <th>Insatisfecho</th>
+                    <th>Poco satisfecho</th>
+                    <th>Ni insatisfecho ni satisfecho</th>
+                    <th>Muy satisfecho</th>
+                    <th>Totalmente satisfecho</th>
+                  </tr>
+                  <TableRow 
+                    topic='Acceso al recinto (Rapidez y amabilidad)'
+                    register={register}
+                    registerField='acceso_recinto'
+                    />
+                  
+                  <TableRow 
+                    topic='Disponibilidad de estacionamientos'
+                    register={register}
+                    registerField='disponibilidad_estacionamientos'/>
+                  <TableRow 
+                    topic='Seguridad del recinto'
+                    register={register}
+                    registerField='seguridad_recinto'/>
+                  <TableRow 
+                    topic='Iluminación del recinto'
+                    register={register}
+                    registerField='iluminacion_recinto'/>
+                  <TableRow 
+                    topic='Accesos inclusivos'
+                    register={register}
+                    registerField='accesos_inlusivos'/>
+                  <TableRow 
+                    topic='Servicios higiénicos'
+                    register={register}
+                    registerField='servicios_higienicos'/>
+                  <TableRow 
+                    topic='Temperatura al interior del recinto'
+                    register={register}
+                    registerField='temperatura_recinto'/>
+                </tbody>
+              </table>
+            </div>
           </div>
 
           <div>
-            <label>15. Asistió o tiene intención de participar / observar en alguna de estas actividades:</label>
-            <table>
-              <tbody>
-                <tr className='tableHeader'>
-                  <th></th>
-                  <th>Aún no participa</th>
-                  <th>Insatisfecho</th>
-                  <th>Poco satisfecho</th>
-                  <th>Ni insatisfecho ni satisfecho</th>
-                  <th>Muy satisfecho</th>
-                  <th>Totalmente satisfecho</th>
-                </tr>
-                <TableRow 
-                  topic='Espectáculo (desfile y música)'
-                  register={register}
-                  registerField='espectaculo'
-                  />
-                <TableRow 
-                  topic='Exhibiciones (autos antiguos)'
-                  register={register}
-                  registerField='exhibiciones'/>
-                <TableRow 
-                  topic='Concurso mejor tomador de cerveza'
-                  register={register}
-                  registerField='mejor_tomador_cerveza'/>
-                <TableRow 
-                  topic='Concurso mejor clavador de clavos'
-                  register={register}
-                  registerField='mejor_clavador'/>
-                <TableRow 
-                  topic='Concurso martillo de fuerza'
-                  register={register}
-                  registerField='martillo_fuerza'/>
-              </tbody>
-            </table>
+            <span style={{margin:'0rem 0rem 0.5rem 0rem'}}>
+              15. Asistió o tiene intención de participar / observar en alguna de estas actividades:
+            </span>
+            <div className='likert'>
+              <table>
+                <tbody>
+                  <tr className='tableHeader'>
+                    <th></th>
+                    <th>Aún no participa</th>
+                    <th>Insatisfecho</th>
+                    <th>Poco satisfecho</th>
+                    <th>Ni insatisfecho ni satisfecho</th>
+                    <th>Muy satisfecho</th>
+                    <th>Totalmente satisfecho</th>
+                  </tr>
+                  <TableRow 
+                    topic='Espectáculo (desfile y música)'
+                    register={register}
+                    registerField='espectaculo'
+                    />
+                  <TableRow 
+                    topic='Exhibiciones (autos antiguos)'
+                    register={register}
+                    registerField='exhibiciones'/>
+                  <TableRow 
+                    topic='Concurso mejor tomador de cerveza'
+                    register={register}
+                    registerField='mejor_tomador_cerveza'/>
+                  <TableRow 
+                    topic='Concurso mejor clavador de clavos'
+                    register={register}
+                    registerField='mejor_clavador'/>
+                  <TableRow 
+                    topic='Concurso martillo de fuerza'
+                    register={register}
+                    registerField='martillo_fuerza'/>
+                </tbody>
+              </table>
+            </div>
           </div>
+
           <div>
-            <label>
+            <span style={{margin:'0rem 0rem 0.5rem 0rem'}}>
               16. ¿Participó o participará de alguna actividad complementaria a este evento que se realiza fuera del recinto? (Tarjetas: Regata de velas – Gymkana de autos antiguos – Concurso ecuestre – Regata de remos) (MISMO QUE PREGUNTA 15 Y MODIFICAR SEGÚN PROGRAMA)
+            </span>
+            <RadioButton
+              label='Si'
+              register={register}
+              pregunta='16'
+              registerField='actividad_complementaria'
+              value='si'
+            />
+            <RadioButton
+              label='No'
+              register={register}
+              pregunta='16'
+              registerField='actividad_complementaria'
+              value='no'
+            />
+            <label htmlFor='whichOne'>¿En cuál participó/participará?</label>
+            <input id='whichOne' type="text" {...register('cual_actividad_complementaria', { required: true })}/>
+          </div>
+          
+          <div>
+            <span style={{margin:'0rem 0rem 0.5rem 0rem'}}>
+              17. ¿El evento cumplió sus expectativas?
+            </span>
+            <RadioButton
+              label='Si'
+              pregunta='17'
+              register={register}
+              registerField='cumplio_expectativas'
+              value='si'
+            />
+            <RadioButton
+              label='No'
+              pregunta='17'
+              register={register}
+              registerField='cumplio_expectativas'
+              value='no'
+            />
+            <label htmlFor='why'>¿Por qué? ¿Qué fue lo que más / menos le gustó?</label>
+            <input id='why' type="text" {...register('expectativas', { required: true })}/>
+          </div>
+          <div>
+            <span style={{margin:'0rem 0rem 0.5rem 0rem'}}>
+              18. ¿Sabía usted que esta fiesta Bierfest es un evento a beneficio del cuerpo de Bomberos de Valdivia?
+            </span>
+            <RadioButton 
+              label='Si'
+              register={register}
+              pregunta='18'
+              registerField='sabias_beneficio_bomberos'
+              value='si'
+            />
+            <RadioButton
+              label='No'
+              pregunta='18'
+              register={register}
+              registerField='sabias_beneficio_bomberos'
+              value='no'
+            />
+          </div>
+          <div>
+            <span style={{margin:'0rem 0rem 0.5rem 0rem'}}>
+              19. ¿Sabía usted que todos los participantes que están en la organización de la fiesta Bierfest son instituciones sin fines de lucro que trabajan para reunir fondos?
+            </span>
+            <RadioButton 
+              label='Si'
+              pregunta='19'
+              register={register}
+              registerField='sabias_sin_fines_lucro'
+              value='si'
+            />
+            <RadioButton
+              label='No'
+              pregunta='19'
+              register={register}
+              registerField='sabias_sin_fines_lucro'
+              value='no'
+            />
+          </div>
+          <div>
+            <span style={{margin:'0rem 0rem 0.5rem 0rem'}}>
+              20. ¿Del 1 al 5, cuál es su evaluación general para este evento?
+            </span>
+            {[1, 2, 3, 4, 5].map((value) => (
+              <div key={value}>
+                <RadioButton
+                  label={String(value)}
+                  pregunta='20'
+                  register={register}
+                  registerField='evaluacion_evento'
+                  value={String(value)}
+                />
+              </div>
+            ))}
+          </div>
+
+          <div>
+            <span style={{margin:'0rem 0rem 0.5rem 0rem'}}>
+              21. ¿Del 1 al 5, cuánto recomendaría este evento a un amigo?
+            </span>
+            {[1, 2, 3, 4, 5].map((value) => (
+              <div key={value}>
+                <RadioButton
+                  label={String(value)}
+                  pregunta='21'
+                  register={register}
+                  registerField='recomendacion_evento'
+                  value={String(value)}
+                />
+              </div>
+            ))}
+          </div>
+          <div>
+            <label htmlFor='comment'>
+              22. Para finalizar y considerando su experiencia, ¿tiene algún comentario o sugerencia en general?
             </label>
-            <RadioButton
-              label='Si'
-              register={register}
-              registerField='actividad_complementaria'
-              value='si'
-            />
-            <RadioButton
-              label='No'
-              register={register}
-              registerField='actividad_complementaria'
-              value='no'
-            />
-            <label>¿En cuál participó/participará?</label>
-            <input type="text" {...register('cual_actividad_complementaria', { required: true })}/>
+            <input id='comment' type="text" {...register('comentario')}/>
           </div>
-          <div>
-            <label>17. ¿El evento cumplió sus expectativas?</label>
-            <RadioButton
-              label='Si'
-              register={register}
-              registerField='cumplio_expectativas'
-              value='si'
-            />
-            <RadioButton
-              label='No'
-              register={register}
-              registerField='cumplio_expectativas'
-              value='no'
-            />
-            <label>¿Por qué? ¿Qué fue lo que más / menos le gustó?</label>
-            <input type="text" {...register('expectativas', { required: true })}/>
-          </div>
-          <div>
-            <label>18. ¿Sabía usted que esta fiesta Bierfest es un evento a beneficio del cuerpo de Bomberos de Valdivia?</label>
-            <RadioButton 
-              label='Si'
-              register={register}
-              registerField='sabias_beneficio_bomberos'
-              value='si'
-            />
-            <RadioButton
-              label='No'
-              register={register}
-              registerField='sabias_beneficio_bomberos'
-              value='no'
-            />
-          </div>
-          <div>
-            <label>19. ¿Sabía usted que todos los participantes que están en la organización de la fiesta Bierfest son instituciones sin fines de lucro que trabajan para reunir fondos? </label>
-            <RadioButton 
-              label='Si'
-              register={register}
-              registerField='sabias_sin_fines_lucro'
-              value='si'
-            />
-            <RadioButton
-              label='No'
-              register={register}
-              registerField='sabias_sin_fines_lucro'
-              value='no'
-            />
-          </div>
-          <div>
-            <label>20. ¿Del 1 al 5, cuál es su evaluación general para este evento?</label>
-            <div>
-              <input type="radio" {...register('evaluacion_evento', { required: true })} value='1'/>
-              <label>1</label>
-            </div>
-            <div>
-              <input type="radio" {...register('evaluacion_evento', { required: true })} value='2'/>
-              <label>2</label>
-            </div>
-            <div>
-              <input type="radio" {...register('evaluacion_evento', { required: true })} value='3'/>
-              <label>3</label>
-            </div>
-            <div>
-              <input type="radio" {...register('evaluacion_evento', { required: true })} value='4'/>
-              <label>4</label>
-            </div>
-            <div>
-              <input type="radio" {...register('evaluacion_evento', { required: true })} value='5' />
-              <label>5</label>
-            </div>
-          </div>
-          <div>
-            <label>21. ¿Del 1 al 5, cuánto recomendaría este evento a un amigo? </label>
-            <div>
-              <input type="radio" {...register('recomendacion_evento', { required: true })} value='1'/>
-              <label>1</label>
-            </div>
-            <div>
-              <input type="radio" {...register('recomendacion_evento', { required: true })} value='2'/>
-              <label>2</label>
-            </div>
-            <div>
-              <input type="radio" {...register('recomendacion_evento', { required: true })} value='3'/>
-              <label>3</label>
-            </div>
-            <div>
-              <input type="radio" {...register('recomendacion_evento', { required: true })} value='4'/>
-              <label>4</label>
-            </div>
-            <div>
-              <input type="radio" {...register('recomendacion_evento', { required: true })} value='5' />
-              <label>5</label>
-            </div>
-          </div>
-          <div>
-            <label>22. Para finalizar y considerando su experiencia, ¿tiene algún comentario o sugerencia en general? </label>
-            <input type="text" {...register('comentario')}/>
-          </div>
-          {/* Comprobar salida */}
 
           <div className='submitButtons'>
             <button type="submit">Guardar Respuesta</button>
