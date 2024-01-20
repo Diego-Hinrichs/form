@@ -1,5 +1,5 @@
 import { useForm, FormProvider } from "react-hook-form";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef  } from "react";
 import RadioButton from "./RadioButton";
 import TableRow from "./TableRow";
 import Options from "./Options";
@@ -10,11 +10,16 @@ import * as XLSX from "xlsx";
 const EncuestaForm = () => {
     const methods = useForm();
     const [encuestaData, setEncuestaData] = useState([]);
+    const formContainerRef = useRef(null);
     const { addAnswer, cleanStorage } = useAppContext();
 
     useEffect(() => {
         if (methods.formState.isSubmitSuccessful) {
             methods.reset();
+            formContainerRef.current.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+            });
         }
     }, [methods.reset, methods.formState, encuestaData]);
 
@@ -22,7 +27,7 @@ const EncuestaForm = () => {
         setEncuestaData((prevData) => [...prevData, data]);
         addAnswer(data);
         toast.success("Respuesta Guardada!");
-        methods.reset();
+        // methods.reset();
     };
 
     const guardarRespuestas = () => {
@@ -34,7 +39,7 @@ const EncuestaForm = () => {
     };
 
     return (
-        <div className='container'>
+        <div className='container' ref={formContainerRef}>
             <Toaster
                 position='top-center'
                 reverseOrder={false}
@@ -61,6 +66,18 @@ const EncuestaForm = () => {
                 <form
                     className='form'
                     onSubmit={methods.handleSubmit(onSubmit)}>
+                    <div className="header">
+                        <h1>
+                        Encuesta Evaluación de Calidad Bierfest 2024
+                        </h1>
+                        <p>
+                            <strong>Respuestas registradas: </strong>
+                            <span>{encuestaData.length}</span>
+                        </p>
+                        <button onClick={guardarRespuestas}>
+                            Descargar Excel
+                        </button>
+                    </div>
                     <div>
                         <span style={{ margin: "0rem 0rem 0.5rem 0rem" }}>
                             1. <strong>¿Cuántos años tiene?</strong>
@@ -325,10 +342,19 @@ const EncuestaForm = () => {
                                 ¿El evento cumplió sus expectativas?
                             </strong>
                         </span>
+                        <RadioButton
+                            options={["Si", "No"]}
+                            field='¿El evento cumplió sus expectativas?'
+                        />
                         <span style={{ margin: "0rem 0rem 0.1rem 0rem" }}>
                             ¿Por qué? ¿Qué fue lo que más / menos le gustó?
                         </span>
-                        <input type='text' placeholder='Expectativas' />
+                        <input 
+                            type='text' 
+                            placeholder='Expectativas' 
+                            {...methods.register(`Expectativas`)}
+                            required
+                            />
                     </div>
                     <div>
                         <span style={{ margin: "0rem 0rem 0.5rem 0rem" }}>
@@ -405,7 +431,7 @@ const EncuestaForm = () => {
                         </span>
                         <input
                             id='comment'
-                            type='text'
+                            type='textbox'
                             placeholder='Ingresar comentario'
                             {...methods.register(`Para finalizar y considerando su experiencia,
                             ¿tiene algún comentario o sugerencia en general?`)}
@@ -413,9 +439,6 @@ const EncuestaForm = () => {
                     </div>
                     <div className='submitButtons'>
                         <button type='submit'>Guardar Respuesta</button>
-                        <button onClick={guardarRespuestas}>
-                            Descargar Excel
-                        </button>
                     </div>
                 </form>
             </FormProvider>
